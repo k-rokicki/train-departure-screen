@@ -1,11 +1,18 @@
 {
-  "journey": {
-    "departureStation": "",
-    "destinationStation": null
-  },
-  "refreshTime": 120,
-  "transportApi": {
-    "appId": "",
+  "refreshTime": 20,
+  "apiZTM": {
+    "resourceID": "e923fa0e-d96c-43f9-ae6e-60518c9f3238",
     "apiKey": ""
+  },
+  "busStopInfo": {
+    "busStopID": "3400"
+  },
+  "linesInfo": {
+    "192": "01",
+    "504": "01",
+    "179": "02",
+    "N34": "03",
+    "166": "04",
+    "N37": "04"
   }
 }
