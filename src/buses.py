@@ -20,6 +20,7 @@ def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey):
         data = r.json()['result']
 
         bestDiffMin = float('inf')
+        departure = None
 
         for entry in data:
             info = {}
@@ -67,10 +68,11 @@ def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey):
                         'odjazd': departureTime
                     }
 
-        try:
-            departures.append(departure)
-        except NameError:
-            pass
+        if departure is not None:
+            try:
+                departures.append(departure)
+            except NameError:
+                pass
     
     #print(departures)
     departures.sort(key=lambda x: x['czas'])
