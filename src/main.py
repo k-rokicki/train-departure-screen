@@ -94,7 +94,7 @@ def drawSignage(device, width, height, data, first):
     with canvas(device) as draw:
         w1, h1 = draw.textsize(lineExample, font)
 
-    startIndex = 0 + 3 * (0 if first or len(departures) < 3 else 1)
+    startIndex = 0 + 3 * (0 if first or len(departures) <= 3 else 1)
 
     if len(departures) > startIndex:
         row1A = snapshot(w1, 16, renderLine(
