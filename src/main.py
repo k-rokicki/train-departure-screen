@@ -13,6 +13,10 @@ from luma.core.render import canvas
 from luma.core.virtual import viewport, snapshot
 
 
+refreshesToReload = 0
+loadCounter = 0
+
+
 def loadConfig():
     with open('config.json', 'r') as jsonConfig:
         data = json.load(jsonConfig)
@@ -61,13 +65,25 @@ def renderTime(draw, width, height):
     rawTime = datetime.now().time()
     hour, minute, second = str(rawTime).split('.')[0].split(':')
 
-    draw.text(((width - 56) / 2, 0), text="{}:{}".format(hour, minute),
+    w1, h1 = draw.textsize("{}:{}".format(hour, minute), fontBoldLarge)
+
+    draw.text(((width - 84) / 2, 0), text="{}:{}".format(hour, minute),
               font=fontBoldLarge, fill="yellow")
+
+    draw.text((((width - 84) / 2) + w1, 3), text=":{}".format(second),
+              font=fontBold, fill="yellow")
 
 
 def loadData(apiConfig, journeyConfig, linesInfo):
+    global loadCounter
+
+    if loadCounter == refreshesToReload:
+        loadCounter = 0
+
     departures = loadDepartures(
-        journeyConfig, linesInfo, apiConfig["resourceID"], apiConfig["apiKey"])
+        journeyConfig, linesInfo, apiConfig["resourceID"], apiConfig["apiKey"], loadCounter == 0)
+
+    loadCounter += 1
 
     if len(departures) == 0:
         return False
@@ -120,7 +136,7 @@ def drawSignage(device, width, height, data, first):
         row3C = snapshot(w, 16, renderDepartureTime(
             departures[startIndex + 2]), interval=10)
 
-    rowTime = snapshot(width, 14, renderTime, interval=1)
+    rowTime = snapshot(width, 14, renderTime, interval=0.01)
 
     if len(virtualViewport._hotspots) > 0:
         for hotspot, xy in virtualViewport._hotspots:
@@ -156,6 +172,8 @@ try:
 
     widgetWidth = 256
     widgetHeight = 64
+
+    refreshesToReload = (10 * 60) / config["refreshTime"]
 
     data = loadData(config["apiZTM"], config["busStopInfo"], config["linesInfo"])
     

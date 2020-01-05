@@ -3,7 +3,9 @@ import requests
 import datetime
 from unidecode import unidecode
 
-def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey):
+loadedData = {}
+
+def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey, reloadData):
     busStopID = journeyConfig["busStopID"]
 
     now = datetime.datetime.now()
@@ -13,11 +15,12 @@ def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey):
     departures = []
 
     for line in linesInfo:
-        URL = f"https://api.um.warszawa.pl/api/action/dbtimetable_get/?id={resourceID}&busstopId={busStopID}&busstopNr={linesInfo[line]}&line={line}&apikey={apiKey}"
-
-        r = requests.get(url=URL)
-
-        data = r.json()['result']
+        if reloadData:
+            URL = f"https://api.um.warszawa.pl/api/action/dbtimetable_get/?id={resourceID}&busstopId={busStopID}&busstopNr={linesInfo[line]}&line={line}&apikey={apiKey}"
+            r = requests.get(url=URL)
+            loadedData[line] = r.json()['result']
+        
+        data = loadedData[line]
 
         bestDiffMin = float('inf')
         departure = None
@@ -45,8 +48,8 @@ def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey):
                 diffMs = time - now
                 diffMin = int(diffMs.total_seconds() / 60)
 
-                #if (diffMin > 90):
-                #    continue
+                if (diffMin > 120):
+                    continue
 
                 if diffMin < bestDiffMin:
                     bestDiffMin = diffMin
@@ -74,7 +77,6 @@ def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey):
             except NameError:
                 pass
     
-    #print(departures)
     departures.sort(key=lambda x: x['czas'])
 
     return departures
