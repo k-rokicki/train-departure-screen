@@ -6,7 +6,7 @@ from unidecode import unidecode
 loadedData = {}
 
 def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey, reloadData):
-    busStopID = journeyConfig["busStopID"]
+    busStopID = journeyConfig['busStopID']
 
     now = datetime.datetime.now()
     now = now.replace(second=0)
@@ -16,7 +16,7 @@ def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey, reloadData):
 
     for line in linesInfo:
         if reloadData:
-            URL = f"https://api.um.warszawa.pl/api/action/dbtimetable_get/?id={resourceID}&busstopId={busStopID}&busstopNr={linesInfo[line]}&line={line}&apikey={apiKey}"
+            URL = f'https://api.um.warszawa.pl/api/action/dbtimetable_get/?id={resourceID}&busstopId={busStopID}&busstopNr={linesInfo[line]}&line={line}&apikey={apiKey}'
             r = requests.get(url=URL)
             loadedData[line] = r.json()['result']
         
@@ -44,7 +44,7 @@ def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey, reloadData):
             time = time.replace(second=0)
             time = time.replace(microsecond=0)
 
-            if (now < time):
+            if (now <= time):
                 diffMs = time - now
                 diffMin = int(diffMs.total_seconds() / 60)
 
@@ -54,21 +54,10 @@ def loadDepartures(journeyConfig, linesInfo, resourceID, apiKey, reloadData):
                 if diffMin < bestDiffMin:
                     bestDiffMin = diffMin
 
-                    if (diffMin < 60):
-                        if (diffMin == 1):
-                            departureTime = '< ' + str(diffMin) + ' min'
-                        else:
-                            departureTime = str(diffMin) + ' min'
-                    else:
-                        hour = timeArr[0] if int(timeArr[0]) < 24 else str(int(timeArr[0]) - 24)
-                        minute = timeArr[1]
-                        departureTime = hour + ':' + minute
-
                     departure = {
                         'linia': line,
                         'kierunek': unidecode(info['kierunek']),
-                        'czas': time,
-                        'odjazd': departureTime
+                        'czas': time
                     }
 
         if departure is not None:
